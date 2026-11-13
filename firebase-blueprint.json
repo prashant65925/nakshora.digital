@@ -1,0 +1,531 @@
+{
+  "entities": {
+    "UserPublic": {
+      "title": "UserPublic",
+      "description": "Public non-PII profile for a registered user",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "displayName": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "preferredLanguage": { "type": "string", "enum": ["en", "hi"] },
+        "selectedCity": { "type": "string", "maxLength": 80 },
+        "aiPersonalizationOptIn": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "displayName", "preferredLanguage", "createdAt", "updatedAt"]
+    },
+    "UserPrivateInfo": {
+      "title": "UserPrivateInfo",
+      "description": "Isolated PII document for user contact, city, and delivery PIN code",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "email": { "type": "string", "format": "email", "maxLength": 160 },
+        "phone": { "type": "string", "maxLength": 20 },
+        "address": { "type": "string", "maxLength": 300 },
+        "city": { "type": "string", "maxLength": 80 },
+        "pincode": { "type": "string", "maxLength": 10 },
+        "consentAcceptedAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "updatedAt"]
+    },
+    "AdminRecord": {
+      "title": "AdminRecord",
+      "description": "Trusted admin registry keyed by UID",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "email": { "type": "string", "maxLength": 160 },
+        "role": { "type": "string", "enum": ["super_admin", "catalog_admin", "ops_admin"] },
+        "active": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "role", "active", "createdAt"]
+    },
+    "RoleDefinition": {
+      "title": "RoleDefinition",
+      "description": "RBAC role metadata",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "name": { "type": "string", "maxLength": 80 },
+        "permissions": { "type": "array" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "permissions", "updatedAt"]
+    },
+    "Universe": {
+      "title": "Universe",
+      "description": "Shopping universe (Vastra Mandala, Tech Tara, Annapurna Orbit, etc.)",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "nameEn": { "type": "string", "maxLength": 100 },
+        "nameHi": { "type": "string", "maxLength": 100 },
+        "subtitleEn": { "type": "string", "maxLength": 300 },
+        "subtitleHi": { "type": "string", "maxLength": 300 },
+        "imageUrl": { "type": "string", "maxLength": 500 },
+        "indoreOnly": { "type": "boolean" },
+        "active": { "type": "boolean" },
+        "sortOrder": { "type": "integer" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "nameEn", "nameHi", "indoreOnly", "active", "sortOrder", "updatedAt"]
+    },
+    "Category": {
+      "title": "Category",
+      "description": "Product category or nested subcategory mapped to a shopping universe",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "universeId": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "parentCategoryId": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "nameEn": { "type": "string", "maxLength": 100 },
+        "nameHi": { "type": "string", "maxLength": 100 },
+        "descriptionEn": { "type": "string", "maxLength": 300 },
+        "descriptionHi": { "type": "string", "maxLength": 300 },
+        "imageUrl": { "type": "string", "maxLength": 500 },
+        "sortOrder": { "type": "integer" },
+        "active": { "type": "boolean" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "universeId", "nameEn", "active", "updatedAt"]
+    },
+    "Merchant": {
+      "title": "Merchant",
+      "description": "Merchant adapter record with compliance and enablement controls",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "name": { "type": "string", "maxLength": 120 },
+        "type": { "type": "string", "enum": ["direct", "vedashila_com", "amazon_associates", "blinkit_indore", "zepto_adapter", "bigbasket_adapter", "indore_local"] },
+        "status": { "type": "string", "enum": ["active", "paused", "disabled_emergency", "pending_verification"] },
+        "indoreOnly": { "type": "boolean" },
+        "baseUrl": { "type": "string", "maxLength": 300 },
+        "suppliedReferenceLink": { "type": "string", "maxLength": 300 },
+        "verifiedTrackingId": { "type": "string", "maxLength": 120 },
+        "apiConfigured": { "type": "boolean" },
+        "affiliateDisclosureRequired": { "type": "boolean" },
+        "partnershipClaimed": { "type": "boolean" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "type", "status", "indoreOnly", "apiConfigured", "affiliateDisclosureRequired", "updatedAt"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Unified multi-merchant product record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "titleEn": { "type": "string", "maxLength": 180 },
+        "titleHi": { "type": "string", "maxLength": 180 },
+        "brand": { "type": "string", "maxLength": 80 },
+        "descriptionEn": { "type": "string", "maxLength": 2000 },
+        "descriptionHi": { "type": "string", "maxLength": 2000 },
+        "universeId": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "categoryId": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "merchantId": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "purchaseMode": { "type": "string", "enum": ["direct", "external"] },
+        "externalUrl": { "type": "string", "maxLength": 500 },
+        "priceInr": { "type": "number" },
+        "priceVerified": { "type": "boolean" },
+        "indoreOnly": { "type": "boolean" },
+        "imageUrl": { "type": "string", "maxLength": 500 },
+        "imageRightsStatus": { "type": "string", "enum": ["owned", "licensed", "merchant_permitted", "pending_review"] },
+        "contentPermissions": { "type": "string", "maxLength": 240 },
+        "lastUpdated": { "type": "string", "maxLength": 40 },
+        "status": { "type": "string", "enum": ["published", "pending_approval", "archived"] },
+        "isFixture": { "type": "boolean" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "titleEn", "universeId", "categoryId", "merchantId", "purchaseMode", "priceVerified", "indoreOnly", "status", "updatedAt"]
+    },
+    "ProductVariant": {
+      "title": "ProductVariant",
+      "description": "Variant options for direct or authorized products",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "productId": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "label": { "type": "string", "maxLength": 80 },
+        "sku": { "type": "string", "maxLength": 64 },
+        "priceDeltaInr": { "type": "number" },
+        "inStock": { "type": "boolean" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "productId", "label", "inStock", "updatedAt"]
+    },
+    "Offer": {
+      "title": "Offer",
+      "description": "Verified merchant offer or seasonal deal",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "title": { "type": "string", "maxLength": 160 },
+        "merchantId": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "description": { "type": "string", "maxLength": 600 },
+        "code": { "type": "string", "maxLength": 40 },
+        "indoreOnly": { "type": "boolean" },
+        "verified": { "type": "boolean" },
+        "active": { "type": "boolean" },
+        "expiresAt": { "type": "string", "maxLength": 64 },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "title", "merchantId", "indoreOnly", "verified", "active", "updatedAt"]
+    },
+    "MediaAsset": {
+      "title": "MediaAsset",
+      "description": "Rights-tracked media asset record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "url": { "type": "string", "maxLength": 500 },
+        "rightsType": { "type": "string", "enum": ["owned", "licensed", "merchant_permitted"] },
+        "attribution": { "type": "string", "maxLength": 200 },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "url", "rightsType", "updatedAt"]
+    },
+    "ServiceArea": {
+      "title": "ServiceArea",
+      "description": "Indore PIN code grocery serviceability registry",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 16, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "city": { "type": "string", "maxLength": 60 },
+        "pincode": { "type": "string", "maxLength": 10 },
+        "locality": { "type": "string", "maxLength": 120 },
+        "serviceable": { "type": "boolean" },
+        "eligibleMerchants": { "type": "array" },
+        "note": { "type": "string", "maxLength": 240 },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "city", "pincode", "locality", "serviceable", "eligibleMerchants", "updatedAt"]
+    },
+    "AffiliateCampaign": {
+      "title": "AffiliateCampaign",
+      "description": "Affiliate campaign tracking record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "merchantId": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "name": { "type": "string", "maxLength": 120 },
+        "description": { "type": "string", "maxLength": 300 },
+        "isVerifiedPartner": { "type": "boolean" },
+        "active": { "type": "boolean" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "merchantId", "name", "isVerifiedPartner", "active", "updatedAt"]
+    },
+    "AffiliateLink": {
+      "title": "AffiliateLink",
+      "description": "Custom tracked affiliate link assigned to a merchant and campaign",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "label": { "type": "string", "maxLength": 140 },
+        "merchantId": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "campaignId": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "destinationUrl": { "type": "string", "maxLength": 500 },
+        "trackingCode": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "tags": { "type": "array" },
+        "disclosureNote": { "type": "string", "maxLength": 300 },
+        "conversionTrackable": { "type": "boolean" },
+        "conversions": { "type": "integer" },
+        "active": { "type": "boolean" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "label", "merchantId", "destinationUrl", "trackingCode", "conversionTrackable", "active", "updatedAt"]
+    },
+    "ImportJob": {
+      "title": "ImportJob",
+      "description": "Authorized CSV/JSON/API product import job",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "merchantId": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "sourceType": { "type": "string", "enum": ["csv", "json", "api"] },
+        "totalRows": { "type": "integer" },
+        "validRows": { "type": "integer" },
+        "duplicatesSkipped": { "type": "integer" },
+        "status": { "type": "string", "enum": ["pending_approval", "completed", "failed"] },
+        "createdBy": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "merchantId", "sourceType", "totalRows", "validRows", "status", "createdBy", "createdAt"]
+    },
+    "WishlistItem": {
+      "title": "WishlistItem",
+      "description": "User-saved wishlist item",
+      "type": "object",
+      "properties": {
+        "productId": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "userId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["productId", "userId", "createdAt"]
+    },
+    "ShoppingList": {
+      "title": "ShoppingList",
+      "description": "User shopping planner list",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "userId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "title": { "type": "string", "maxLength": 120 },
+        "budgetInr": { "type": "number" },
+        "items": { "type": "array" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "title", "items", "createdAt", "updatedAt"]
+    },
+    "DirectOrder": {
+      "title": "DirectOrder",
+      "description": "Direct Vedashila Lifestyle Hub order processed exclusively via Razorpay",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "userId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "items": { "type": "array" },
+        "totalInr": { "type": "number" },
+        "currency": { "type": "string", "enum": ["INR"] },
+        "shippingCity": { "type": "string", "maxLength": 80 },
+        "shippingPincode": { "type": "string", "maxLength": 10 },
+        "razorpayOrderId": { "type": "string", "maxLength": 120 },
+        "razorpayPaymentId": { "type": "string", "maxLength": 120 },
+        "paymentStatus": { "type": "string", "enum": ["created", "pending_verification", "verified_paid", "failed", "refunded", "test_fixture"] },
+        "fulfillmentStatus": { "type": "string", "enum": ["awaiting_payment", "processing", "shipped", "delivered", "cancelled"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "items", "totalInr", "currency", "paymentStatus", "fulfillmentStatus", "createdAt", "updatedAt"]
+    },
+    "PaymentRecord": {
+      "title": "PaymentRecord",
+      "description": "Server-verified Razorpay payment ledger entry",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "orderId": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "userId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "amountInr": { "type": "number" },
+        "method": { "type": "string", "maxLength": 40 },
+        "status": { "type": "string", "enum": ["captured", "failed", "refunded", "test_fixture"] },
+        "verifiedBySignature": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "orderId", "userId", "amountInr", "status", "verifiedBySignature", "createdAt"]
+    },
+    "RefundRecord": {
+      "title": "RefundRecord",
+      "description": "Direct-sales refund record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "orderId": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "userId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "amountInr": { "type": "number" },
+        "reason": { "type": "string", "maxLength": 300 },
+        "status": { "type": "string", "enum": ["requested", "approved", "processed", "rejected"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "orderId", "userId", "amountInr", "reason", "status", "createdAt", "updatedAt"]
+    },
+    "SupportTicket": {
+      "title": "SupportTicket",
+      "description": "Customer support inquiry",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "userId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "subject": { "type": "string", "maxLength": 160 },
+        "message": { "type": "string", "maxLength": 2000 },
+        "status": { "type": "string", "enum": ["open", "in_progress", "resolved"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "subject", "message", "status", "createdAt", "updatedAt"]
+    },
+    "BlogPost": {
+      "title": "BlogPost",
+      "description": "Original buying guide or editorial post requiring admin approval",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "title": { "type": "string", "maxLength": 180 },
+        "slug": { "type": "string", "maxLength": 120 },
+        "excerpt": { "type": "string", "maxLength": 400 },
+        "content": { "type": "string", "maxLength": 10000 },
+        "universeId": { "type": "string", "maxLength": 64 },
+        "status": { "type": "string", "enum": ["draft_ai", "published", "archived"] },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "title", "slug", "content", "status", "updatedAt"]
+    },
+    "Banner": {
+      "title": "Banner",
+      "description": "Promotional or seasonal Nakshatra banner",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "title": { "type": "string", "maxLength": 140 },
+        "subtitle": { "type": "string", "maxLength": 240 },
+        "theme": { "type": "string", "enum": ["nakshatra", "festive_diwali", "monsoon_indore"] },
+        "active": { "type": "boolean" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "title", "theme", "active", "updatedAt"]
+    },
+    "AiConversation": {
+      "title": "AiConversation",
+      "description": "Vedashila AI Saathi conversation log for opt-in signed-in users",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "userId": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "language": { "type": "string", "enum": ["en", "hi"] },
+        "prompt": { "type": "string", "maxLength": 1000 },
+        "reply": { "type": "string", "maxLength": 4000 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "language", "prompt", "reply", "createdAt"]
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "Immutable admin security and action audit log",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "actorUid": { "type": "string", "maxLength": 128 },
+        "action": { "type": "string", "maxLength": 120 },
+        "targetPath": { "type": "string", "maxLength": 200 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "actorUid", "action", "targetPath", "createdAt"]
+    },
+    "SystemSetting": {
+      "title": "SystemSetting",
+      "description": "Configurable domain, AI controls, and festive theme settings",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "publicDomain": { "type": "string", "maxLength": 180 },
+        "festiveTheme": { "type": "string", "enum": ["default", "diwali", "holi", "navratri"] },
+        "aiSaathiEnabled": { "type": "boolean" },
+        "aiDailyLimitPerUser": { "type": "integer" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "aiSaathiEnabled", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserPublic" },
+      "description": "Public non-PII user preferences"
+    },
+    "/users/{userId}/private/{docId}": {
+      "schema": { "$ref": "#/entities/UserPrivateInfo" },
+      "description": "Isolated PII (email, phone, address, pincode)"
+    },
+    "/users/{userId}/wishlists/{itemId}": {
+      "schema": { "$ref": "#/entities/WishlistItem" },
+      "description": "User saved wishlist items"
+    },
+    "/users/{userId}/shoppingLists/{listId}": {
+      "schema": { "$ref": "#/entities/ShoppingList" },
+      "description": "User shopping planner lists"
+    },
+    "/users/{userId}/aiConversations/{conversationId}": {
+      "schema": { "$ref": "#/entities/AiConversation" },
+      "description": "User AI Saathi conversation history"
+    },
+    "/admins/{adminId}": {
+      "schema": { "$ref": "#/entities/AdminRecord" },
+      "description": "Trusted admin role registry"
+    },
+    "/roles/{roleId}": {
+      "schema": { "$ref": "#/entities/RoleDefinition" },
+      "description": "RBAC role definitions"
+    },
+    "/universes/{universeId}": {
+      "schema": { "$ref": "#/entities/Universe" },
+      "description": "Shopping universes"
+    },
+    "/categories/{categoryId}": {
+      "schema": { "$ref": "#/entities/Category" },
+      "description": "Product categories"
+    },
+    "/merchants/{merchantId}": {
+      "schema": { "$ref": "#/entities/Merchant" },
+      "description": "Multi-merchant adapter configurations"
+    },
+    "/products/{productId}": {
+      "schema": { "$ref": "#/entities/Product" },
+      "description": "Unified product catalogue"
+    },
+    "/productVariants/{variantId}": {
+      "schema": { "$ref": "#/entities/ProductVariant" },
+      "description": "Product variant records"
+    },
+    "/offers/{offerId}": {
+      "schema": { "$ref": "#/entities/Offer" },
+      "description": "Verified merchant offers"
+    },
+    "/mediaAssets/{assetId}": {
+      "schema": { "$ref": "#/entities/MediaAsset" },
+      "description": "Media rights registry"
+    },
+    "/serviceAreas/{areaId}": {
+      "schema": { "$ref": "#/entities/ServiceArea" },
+      "description": "Indore grocery serviceable PIN codes"
+    },
+    "/affiliateCampaigns/{campaignId}": {
+      "schema": { "$ref": "#/entities/AffiliateCampaign" },
+      "description": "Affiliate campaigns"
+    },
+    "/affiliateLinks/{linkId}": {
+      "schema": { "$ref": "#/entities/AffiliateLink" },
+      "description": "Custom tracked affiliate links"
+    },
+    "/importJobs/{jobId}": {
+      "schema": { "$ref": "#/entities/ImportJob" },
+      "description": "Catalogue import jobs"
+    },
+    "/directOrders/{orderId}": {
+      "schema": { "$ref": "#/entities/DirectOrder" },
+      "description": "Direct Razorpay orders"
+    },
+    "/payments/{paymentId}": {
+      "schema": { "$ref": "#/entities/PaymentRecord" },
+      "description": "Verified Razorpay payment records"
+    },
+    "/refunds/{refundId}": {
+      "schema": { "$ref": "#/entities/RefundRecord" },
+      "description": "Direct-sales refund requests and outcomes"
+    },
+    "/supportTickets/{ticketId}": {
+      "schema": { "$ref": "#/entities/SupportTicket" },
+      "description": "Customer support tickets"
+    },
+    "/blogPosts/{postId}": {
+      "schema": { "$ref": "#/entities/BlogPost" },
+      "description": "Editorial buying guides"
+    },
+    "/banners/{bannerId}": {
+      "schema": { "$ref": "#/entities/Banner" },
+      "description": "Promotional banners"
+    },
+    "/auditLogs/{logId}": {
+      "schema": { "$ref": "#/entities/AuditLog" },
+      "description": "Immutable admin audit log"
+    },
+    "/systemSettings/{settingId}": {
+      "schema": { "$ref": "#/entities/SystemSetting" },
+      "description": "Platform configuration settings"
+    }
+  }
+}

@@ -1,0 +1,64 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  :root {
+    --font-display: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    --font-sans: 'Manrope', system-ui, -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+
+    --brand-emerald: #073D35;
+    --brand-gold: #C89A45;
+    --brand-ivory: #F8F2E8;
+    --brand-white: #FFFFFF;
+    --brand-coral: #F47D79;
+    --brand-charcoal: #252525;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: #F8F2E8;
+    color: #252525;
+  }
+
+  .dark body {
+    background-color: #071A17;
+    color: #F8F2E8;
+  }
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-mono-num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes slowOrbit {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-orbit-slow {
+  animation: slowOrbit 48s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-orbit-slow,
+  .motion-safe-only {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+.reduced-motion .animate-orbit-slow,
+.reduced-motion .motion-safe-only {
+  animation: none !important;
+  transition: none !important;
+}

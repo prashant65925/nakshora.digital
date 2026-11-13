@@ -1,0 +1,10 @@
+{
+  "name": "Vedashila Lifestyle Hub",
+  "description": "VEDASHILA NAKSHATRA — The Intelligent Shopping Universe. Multi-merchant discovery, Indore groceries, Gemini AI Saathi, and direct Razorpay commerce.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
